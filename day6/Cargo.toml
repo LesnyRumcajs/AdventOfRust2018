@@ -1,0 +1,9 @@
+[package]
+name = "day6"
+version = "0.1.0"
+authors = ["lesnyrumcajs <lesny.rumcajs@gmail.com>"]
+
+[dependencies]
+regex = "1"
+lazy_static = "1.2.0"
+multiarray = "0.1.3"
