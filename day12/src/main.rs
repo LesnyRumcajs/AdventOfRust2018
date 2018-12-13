@@ -9,22 +9,81 @@ struct Rule {
     output: bool
 }
 
+const PRE: i32 = 20;
+
 fn main() {
-    let (mut pots, rules) = load_data("res/test");
-    let mut first_index = 0;
+    let (mut pots, rules) = load_data("res/input");
+
+    for _ in 0..PRE {
+        pots.insert(0, false);
+    }
+
 
     let mut next_generation: Vec<bool> = Vec::new();
-    const GENERATIONS: usize = 20;
-    for generation in 1..GENERATIONS + 1 {
-        for (no, pot) in pots.iter().enumerate() {
-//            let window: Vec<bool> = match no {
-//                0 => vec![]
-//            }
-            for rule in rules {
+    let mut prev_sum = 0;
+    let mut prev_diff = 0;
+    let mut same_diff_count = 0;
 
+    const GENERATIONS: usize = 20;
+    let mut generations_completed = 0;
+
+    for generation in 1..GENERATIONS + 1 {
+        for no in 0..pots.len() + 2 {
+
+            let window: Vec<bool> = match no {
+                0 => vec![false, false, *pots.get(no).unwrap_or(&false), *pots.get(no + 1).unwrap_or(&false), *pots.get(no + 2).unwrap_or(&false)],
+                1 => vec![false, *pots.get(no - 1).unwrap_or(&false), pots[no], *pots.get(no + 1).unwrap_or(&false), *pots.get(no + 2).unwrap_or(&false)],
+                _ => vec![*pots.get(no - 2).unwrap_or(&false), *pots.get(no - 1).unwrap_or(&false), *pots.get(no).unwrap_or(&false), *pots.get(no + 1).unwrap_or(&false), *pots.get(no + 2).unwrap_or(&false)],
+            };
+
+            let mut will_grow = false;
+            for rule in rules.iter() {
+                if rule.dep == window {
+                    will_grow = rule.output;
+                    break;
+                }
             }
+
+            next_generation.push(will_grow);
+        }
+
+        pots = next_generation;
+        next_generation = Vec::new();
+
+        generations_completed = generation;
+
+        let sum = sum_pots(&mut pots);
+        let diff = sum - prev_sum;
+
+        if diff == prev_diff {
+            same_diff_count += 1;
+        } else {
+            same_diff_count = 0;
+        }
+
+        if same_diff_count > 5 {
+            break;
+        }
+        prev_sum = sum;
+        prev_diff = diff;
+    }
+
+    if generations_completed == GENERATIONS {
+        println!("{}", sum_pots(&mut pots));
+    } else {
+        println!("{}", prev_sum as usize + prev_diff as usize *(GENERATIONS - generations_completed as usize + 1) as usize);
+    }
+
+}
+
+fn sum_pots(pots: &mut Vec<bool>) -> i32 {
+    let mut sum = 0;
+    for (no, pot) in pots.iter().enumerate() {
+        if *pot {
+            sum += no as i32 - PRE;
         }
     }
+    sum
 }
 
 fn load_data(filename: &str) -> (Vec<bool>, Vec<Rule>) {
