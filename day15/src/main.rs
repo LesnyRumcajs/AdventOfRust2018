@@ -37,6 +37,10 @@ impl Unit {
             position
         }
     }
+
+    fn is_alive(&self) -> bool {
+        return self.hp > 0
+    }
 }
 
 type Battleground = Vec<Vec<Field>>;
@@ -74,20 +78,33 @@ impl Pos {
 }
 
 fn main() {
-    let battleground = load_input("res/input");
+    let mut battleground = load_input("res/test");
     print_battleground(&battleground);
 
-    let units = get_units_from_battleground(&battleground);
+    let mut units = get_units_from_battleground(&battleground);
+    units.sort_by_key(|unit| (unit.position.y, unit.position.y));
+    let units = units;
+
+//    let some_unit = units[0];
+//    println!("{}:{}", some_unit.position.x, some_unit.position.y);
+
+//    battleground.swap(0,1);
+
+//    units.sort_by_key(|x| x.);
+//    if let Field::Warrior(warrior) = units[0] {
+//
+//    }
+    print_battleground(&battleground);
 }
 
-fn get_units_from_battleground(battleground: &Battleground) {
-    for row in battleground.iter() {
-        for field in row.iter() {
-            if let Field::Warrior(warrior) = field {
-                println!("Found at {:?} ", warrior.position);
-            }
-        }
-    }
+fn get_units_from_battleground(battleground: &Battleground) -> Vec<&Unit>{
+    battleground.iter().flatten().into_iter().filter(|x| match x {
+        Field::Warrior(warrior) => warrior.is_alive(),
+        _ => false
+    }).map(|x| match x {
+        Field::Warrior(warrior) => warrior,
+        _ => panic!("oh no no no!")
+    }).collect()
 }
 
 fn load_input(filename: &str) -> Battleground {
@@ -109,4 +126,18 @@ fn print_battleground(battleground: &Battleground) {
         }
         println!();
     }
+}
+
+fn get_faction_adjacent_positions(faction: Faction, battleground: &Battleground) -> Vec<Pos> {
+    let positions: Vec<Pos> = Vec::new();
+    for row in battleground.iter() {
+        for x in row.iter() {
+//            match x {
+//                Field::Warrior(warrior) => {
+//                    if
+//                }
+//            }
+        }
+    }
+    positions
 }
